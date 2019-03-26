@@ -9,7 +9,3 @@ header.header {
 header.header h1 {
     font-size: 1.8em;
 }
-
-header.header p {
-    margin-top: -15px;
-}
