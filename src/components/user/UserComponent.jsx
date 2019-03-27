@@ -19,6 +19,13 @@ const initialState = {
 export default class UserComponent extends Component {
     state = {...initialState}
 
+    componentDidMount() {
+        axios(baseUrl)
+            .then(resp => {
+                this.setState({list: resp.data})
+            })
+    }
+
     clear() {
         this.setState({
             user: initialState.user
@@ -39,11 +46,11 @@ export default class UserComponent extends Component {
             })
     }
 
-    getUpdatedList(user) {
+    getUpdatedList(user, add = true) {
         // removemos o user recebido da lista pelo ID
         const list = this.state.list.filter(u => u.id !== user.id)
-        // adiciona o usuario atualizado na primeira posicao
-        list.unshift(user)
+        // adiciona o usuario atualizado na primeira posicao caso for acao de adicao
+        if (add) list.unshift(user)
         return list
     }
 
@@ -56,6 +63,59 @@ export default class UserComponent extends Component {
         user[event.target.name] = event.target.value
         // atualiza o estado
         this.setState({user})
+    }
+
+    load(user) {
+        this.setState({user})
+    }
+
+    remove(user) {
+        axios.delete(`${baseUrl}/${user.id}`)
+            .then( resp =>{
+                // passa um usuario nulo para a funcao remover este usuario
+                const list = this.getUpdatedList(user, false)
+                this.setState({list})
+            })
+    }
+
+    renderTable() {
+        return (
+            <table className="table mt-4">
+                <thead>
+                    <th>Nome</th>
+                    <th>E-mail</th>
+                    <th>Ações</th>
+                </thead>
+                <tbody>
+                    {this.renderRows()}
+                </tbody>
+            </table>
+        )
+    }
+
+    renderRows() {
+        return this.state.list.map(user => {
+            return (
+                <tr key={user.id}>
+                    <td>{user.name}</td>
+                    <td>{user.email}</td>
+                    <td>
+                        <button
+                            className="btn btn-warning"
+                            onClick={() => this.load(user)}
+                        >
+                            <i className="fa fa-pencil"></i>
+                        </button>
+                        <button
+                            className="btn btn-danger ml-2"
+                            onClick={() => this.remove(user)}
+                        >
+                            <i className="fa fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            )
+        })
     }
 
     // funcao que retorna o JSX do formulario
@@ -115,6 +175,7 @@ export default class UserComponent extends Component {
         return (
             <Main {...headerProps}>
                 {this.renderForm()}
+                {this.renderTable()}
             </Main>
         )
     }
