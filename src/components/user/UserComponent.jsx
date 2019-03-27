@@ -8,7 +8,7 @@ const headerProps = {
     subtitle: 'Gerenciamento de usuários'
 }
 
-export default class User extends Component {
+export default class UserComponent extends Component {
     state = {...headerProps}
 
     render() {
